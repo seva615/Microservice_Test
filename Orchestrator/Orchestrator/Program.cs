@@ -5,15 +5,19 @@ using Refit;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 builder.Services.AddRefitClient<IUserClient>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://localhost:44325/api"));
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(builder.Configuration["ServicesConnectionStrings:UserService"]));
 builder.Services.AddRefitClient<IProductClient>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://localhost:44371/api"));
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(builder.Configuration["ServicesConnectionStrings:ProductService"]));
 builder.Services.AddRefitClient<IImageClient>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://localhost:44371/api"));
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(builder.Configuration["ServicesConnectionStrings:ProductService"]));
+builder.Services.AddRefitClient<ICartClient>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(builder.Configuration["ServicesConnectionStrings:ProductService"]));
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddMvc();
 builder.Services.AddControllers();
@@ -54,7 +58,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Orchestrator.API v1"));
+    app.UseSwaggerUI(
+        c => {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Orchestrator.API v1");
+            c.RoutePrefix = string.Empty;
+            });
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();

@@ -19,10 +19,10 @@ namespace Orchestrator.API.Services
             return images;
         }
 
-        public async Task AddProductImage(IFormFile image, Guid productId)
+        public async Task AddProductImage(IFormFile image, Guid id)
         {
             StreamPart imageStream = ToStreamPart(image);
-            await _imageClient.AddImage(imageStream, productId);
+            await _imageClient.AddImage(imageStream, id);
         }
 
         public StreamPart ToStreamPart(IFormFile file)

@@ -11,7 +11,7 @@ namespace Orchestrator.API.Interfaces
 
         [Multipart]
         [Post("/Image/addProductImage")]
-        public Task AddImage( StreamPart image,Guid id);
+        public Task AddImage(StreamPart image,[Query]Guid id);
 
         [Delete("/Image/deleteImage")]
         public Task DeleteImage(Guid id);

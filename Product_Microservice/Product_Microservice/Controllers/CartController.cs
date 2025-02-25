@@ -43,7 +43,7 @@ namespace Product.Api.Controllers
             return cartViewModel;
         }
 
-        [HttpGet("AddToCart")]
+        [HttpGet("addToCart")]
         public async Task AddToCart(Guid userId,Guid productId)
         {
             await _cartService.AddProductToCart(productId, userId);

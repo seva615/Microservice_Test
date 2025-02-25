@@ -13,7 +13,7 @@ namespace Orchestrator.API.Interfaces
         Task<ProductGetModel> GetProduct(Guid id);
 
         [Post("/Product/createProduct")]
-        Task AddProduct([FromBody] ProductPutModel productPutModel);
+        Task AddProduct(ProductPutModel productPutModel);
 
         [Patch("/Product/editProduct")]
         Task EditProduct(ProductGetModel productGetModel);
