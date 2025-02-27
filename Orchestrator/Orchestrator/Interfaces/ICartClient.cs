@@ -12,7 +12,7 @@ namespace Orchestrator.API.Interfaces
         Task<CartGetModel> GetCart(Guid id);
 
         [Post("/Cart/createCart")]
-        Task AddCart(Guid id);
+        Task AddCart(Guid userId);
 
         [Get("/Cart/addToCart")]
         Task AddToCart(Guid userId, Guid productId);

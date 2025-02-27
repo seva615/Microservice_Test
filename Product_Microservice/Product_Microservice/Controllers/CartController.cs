@@ -63,15 +63,16 @@ namespace Product.Api.Controllers
         }
 
         [HttpDelete("deleteCart")]
-        public async Task DeleteProduct(Guid id)
+        public async Task<IActionResult> DeleteProduct(Guid id)
         {
             try
             {
                 await _cartService.DeleteCart(id);
+                return Ok();
             }
             catch (Exception e)
             {
-                throw new Exception("Cart not found");
+                return BadRequest(e.Message);
             }
         }
     }

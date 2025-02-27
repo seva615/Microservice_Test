@@ -5,6 +5,6 @@ namespace User.API.Interfaces
 {
     public interface IUserRepository : IGenericRepository<UserEntity>
     {
-        UserEntity GetByEmail(string email);
+        Task<UserEntity> GetByEmail(string email);
     }
 }

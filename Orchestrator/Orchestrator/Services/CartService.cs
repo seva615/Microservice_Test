@@ -6,10 +6,12 @@ namespace Orchestrator.API.Services
     public class CartService : ICartService
     {
         private readonly ICartClient _cartClient;
+        private readonly IUserClient _userClient;
 
-        public CartService(ICartClient cartClient)
+        public CartService(ICartClient cartClient, IUserClient userClient)
         {
             _cartClient = cartClient;
+            _userClient = userClient;
         }
 
         public async Task AddToCart(Guid userId, Guid productId)
@@ -19,12 +21,17 @@ namespace Orchestrator.API.Services
 
         public async Task CreateCart(Guid userId)
         {
+            var user = await _userClient.GetUser(userId);
+            if (user == null)
+            {
+                throw new Exception("User doesn't exist");
+            }
             await _cartClient.AddCart(userId);
         }
 
-        public async Task DeleteCart(Guid cartId)
+        public async Task DeleteCart(Guid userId)
         {
-            await _cartClient.DeleteCart(cartId);
+            await _cartClient.DeleteCart(userId);
         }
 
         public async Task<IEnumerable<CartGetModel>> GetAllCarts()

@@ -11,10 +11,13 @@ namespace Orchestrator.API.Interfaces
         Task Register(UserPutModel user);
 
         [Post("/Account/login")]
-        Task<string> Login(UserPutModel user);
+        Task<JwtModel> Login([Body]UserPutModel user);
 
         [Get("/Account/getUserByJwt")]
         Task<UserGetModel> GetUserByJwt([Header("Authorization")] string token);
+
+        [Get("/Account/getUserByEmail")]
+        Task<UserGetModel> GetUserByEmail(string email);
 
         [Get("/Account/getAccounts")]
         Task<IEnumerable<UserGetModel>> GetAllUsers();

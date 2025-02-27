@@ -24,9 +24,9 @@ namespace User.API.Service
         }
         public async Task DeleteAccount(Guid id)
         {
-            if (id == null)
+            if (id == Guid.Empty)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException("Id is null");
             }
 
             await _userRepository.Delete(id);
@@ -34,13 +34,14 @@ namespace User.API.Service
 
         public async Task CreateAccount(UserModel user)
         {
-            if (_userRepository.GetByEmail(user.Email) != null)
+            if ( await _userRepository.GetByEmail(user.Email) != null)
             {
                 throw new AccountCreatingException("This email already used");
             }
 
             IEnumerable<UserEntity> usersList = await _userRepository.GetAll();
-            user.Role = !usersList.Any() ? UserRoles.Roles.Admin : UserRoles.Roles.User;
+
+            user.Role = !usersList.Any(e => e.Role == UserRoles.Roles.Admin) ? UserRoles.Roles.Admin : UserRoles.Roles.User;
 
             var userEntity = _mapper.Map<UserModel, UserEntity>(user);
             userEntity.Password = _cryptographyService.HashPassword(userEntity.Password);
@@ -48,11 +49,11 @@ namespace User.API.Service
             await _userRepository.Add(userEntity);  
         }
 
-        public UserModel Authorize(UserModel user)
+        public async Task<UserModel> Authorize(UserModel user)
         {
             var userEntity = _mapper.Map<UserModel, UserEntity>(user);
 
-            var dbUser = _userRepository.GetByEmail(userEntity.Email);
+            var dbUser = await _userRepository.GetByEmail(userEntity.Email);
 
             if (dbUser == null)
             {
@@ -69,10 +70,23 @@ namespace User.API.Service
             return null;
         }
 
-        
+        public async Task<UserModel> GetUserByEmail(string email)
+        {
+            if (email == null)
+            {
+                throw new ArgumentNullException("Emial is null");
+            }
+            var userEntity = await _userRepository.GetByEmail(email);
+            var userModel = _mapper.Map<UserEntity, UserModel>(userEntity);
+            return userModel;
+        }
 
         public async Task<UserModel> GetAccount(Guid id)
         {
+            if(id == Guid.Empty)
+            {
+                throw new ArgumentNullException("Id is null");
+            }
             var userEntity = await _userRepository.GetById(id);
             var userModel = _mapper.Map<UserEntity, UserModel>(userEntity);
             return userModel;
@@ -80,7 +94,33 @@ namespace User.API.Service
 
         public async Task EditAccount(UserModel user)
         {
-            var userEntity = _mapper.Map<UserModel, UserEntity>(user);
+            var entity = _mapper.Map<UserModel, UserEntity>(user);
+            var userEntity = await _userRepository.GetById(user.Id);
+            if(userEntity == null)
+            {
+                throw new Exception("User not found");
+            }
+            if(entity.Name != null)
+            {
+                userEntity.Name = entity.Name;
+            }
+
+            if (entity.Email != null)
+            {
+                if(_userRepository.GetByEmail(entity.Email) == null)
+                {
+                    userEntity.Email = entity.Email;
+                }
+                else
+                {
+                    throw new InvalidOperationException("This email already used");
+                }
+            }
+
+            if (entity.Password != null)
+            {
+                userEntity.Password = _cryptographyService.HashPassword(entity.Password);
+            }
             await _userRepository.Edit(userEntity);
         }
 

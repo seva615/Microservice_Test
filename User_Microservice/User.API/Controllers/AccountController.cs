@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using User.API.ControllerModels;
 using User.API.Interfaces;
 using User.API.JWT;
@@ -25,25 +26,39 @@ namespace User.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task Register([FromBody] CreateUserViewModel user)
+        public async Task<IActionResult> Register([FromBody] CreateUserViewModel user)
         {
+            if (user == null)
+            {
+                return BadRequest("User model is empty");
+            }
+
             UserModel userModel = _mapper.Map<CreateUserViewModel, UserModel>(user);
-            await _accountService.CreateAccount(userModel);
+
+            try
+            {
+                await _accountService.CreateAccount(userModel);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+               return BadRequest(ex.Message);
+            }
         }
 
 
         [HttpPost("login")]        
-        public IActionResult Login([FromBody] CreateUserViewModel loginModel)
+        public async Task<IActionResult> Login([FromBody] CreateUserViewModel loginModel)
         {
             UserModel userModel = _mapper.Map<CreateUserViewModel, UserModel>(loginModel);
 
             try
             {
-                userModel = _accountService.Authorize(userModel);
+                userModel = await _accountService.Authorize(userModel);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e);
+                return BadRequest(ex);
             }
 
             User.Claims.FirstOrDefault(x => x.Type == "");
@@ -53,52 +68,122 @@ namespace User.API.Controllers
             if (userViewModel != null)
             {
                 var token = _jwtGenerator.GenerateJwtToken(userViewModel);
-
-                return Ok(new
+                JwtModel jwt = new JwtModel
                 {
-                    access_token = token,
-                    role = userViewModel.Role,
-                    id = userViewModel.Id,
-                    user_name = userViewModel.Email,
-                });
+                    AccessToken = token,
+                    Role = userViewModel.Role,
+                    Id = userViewModel.Id,
+                    Email = userViewModel.Email,
+                };
+
+                return Ok(jwt);
             }
 
             return BadRequest();
         }
 
+        [HttpPatch("editAccount")]
+        public async Task<IActionResult> EditAccount(EditUserViewModel userViewModel)
+        {
+            if (userViewModel == null)
+            {
+                return BadRequest();
+            }
+            var userModel = _mapper.Map<EditUserViewModel, UserModel>(userViewModel);
+            try
+            {
+                await _accountService.EditAccount(userModel);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
 
         [HttpGet("getUserByJwt")]
-        [Authorize]
-        public async Task<UserViewModel> GetUserByJwt()
+        //[Authorize]
+        public async Task<IActionResult> GetUserByJwt()
         {
-            var userId = User.Claims.FirstOrDefault(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value;
-            Guid id = Guid.Parse(userId);
-            var userModel = await _accountService.GetAccount(id); 
+           
+            UserModel userModel;
+            try
+            {
+                var userId = User.Claims.FirstOrDefault(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value;
+                Guid id = Guid.Parse(userId);
+                userModel = await _accountService.GetAccount(id);
+            } catch (Exception ex) 
+            {
+                return BadRequest(ex);
+            }
             var userViewModel = _mapper.Map<UserModel, UserViewModel>(userModel);
-            return userViewModel;
+            return Ok(userViewModel);
         }
 
 
         [HttpGet("getAccounts")]            
-        public async Task<IEnumerable<UserViewModel>> GetAllAccounts()
+        public async Task<IActionResult> GetAllAccounts()
         {
-            var UserModels = await _accountService.GetAllAccounts();
-            var UserViewModels = _mapper.Map<IEnumerable<UserViewModel>>(UserModels);
-            return UserViewModels;
+            IEnumerable<UserModel> userModels;
+            try
+            {
+                userModels = await _accountService.GetAllAccounts();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }            
+            var userViewModels = _mapper.Map<IEnumerable<UserViewModel>>(userModels);
+            return Ok(userViewModels);
         }
 
         [HttpGet("getUser")]        
-        public async Task<UserViewModel> GetUser(Guid id)
+        public async Task<IActionResult> GetUser(Guid id)
         {
-            var UserModel = await _accountService.GetAccount(id);
-            var UserViewModel = _mapper.Map<UserModel, UserViewModel>(UserModel);
-            return UserViewModel;
+           
+            UserModel userModel;
+            try
+            {
+                userModel = await _accountService.GetAccount(id);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            var userViewModel = _mapper.Map<UserModel, UserViewModel>(userModel);
+            return Ok(userViewModel);
         }
 
-        [HttpDelete("deleteUser")]               
-        public async Task DeleteUser(Guid id)
+        [HttpGet("getUserByEmail")]
+        public async Task<IActionResult> GetUserByEmail(string email)
         {
-            await _accountService.DeleteAccount(id);
+
+            UserModel userModel;
+            try
+            {
+                userModel = await _accountService.GetUserByEmail(email);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            var userViewModel = _mapper.Map<UserModel, UserViewModel>(userModel);
+            return Ok(userViewModel);
+        }
+        [HttpDelete("deleteUser")]               
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            try
+            {
+                await _accountService.DeleteAccount(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

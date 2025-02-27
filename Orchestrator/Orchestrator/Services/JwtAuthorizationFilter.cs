@@ -10,10 +10,11 @@ using System.Xml.Linq;
 using Orchestrator.API.Exceptions;
 using Google.Apis.Admin.Directory.directory_v1.Data;
 using ICSharpCode.Decompiler.IL;
+using System.Net;
 
 namespace Orchestrator.API.Services
 {
-    public class JwtAuthorizationFilter : Attribute, IAuthorizationFilter
+    public class JwtAuthorizationFilter : Attribute, IAsyncAuthorizationFilter
     {
 
         List<string> _roles = new List<string>();
@@ -22,40 +23,37 @@ namespace Orchestrator.API.Services
             _roles = roles.ToList();
         }
 
-        public async void OnAuthorization(AuthorizationFilterContext context)
+        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-
+            
             string authHeader = context.HttpContext.Request.Headers["Authorization"].FirstOrDefault();
             IUserClient userClient = context.HttpContext.RequestServices.GetRequiredService<IUserClient>();
-
+            
             if (authHeader == null || !authHeader.StartsWith("Bearer "))
             {
                 context.Result = new UnauthorizedResult();
                 return;
             }
 
-            UserGetModel user = await userClient.GetUserByJwt(authHeader);
-
+            UserGetModel user =  await userClient.GetUserByJwt(authHeader);
+            
             if (user == null)
             {
-                //Console.Error.WriteLine($"Ошибка при валидации токена");
-                //context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                throw new Exception($"Ошибка при валидации токена");
+                context.Result = new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return;
             }
 
-            if (_roles != null)
+            if (_roles != null && _roles.Any())
             {
-                foreach (var role in _roles)
+                if (!_roles.Contains(user.Role))
                 {
-                    if (user.Role != role)
-                    {
-                        // Console.Error.WriteLine($"Не достаточно прав");
-                        //context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
-                        throw new Exception($"Не достаточно прав");
-                        
-                    }
+                    context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
+                    return;
                 }
             }
-        }        
+            
+        }
+
+       
     }
 }

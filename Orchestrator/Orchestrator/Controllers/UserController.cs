@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Orchestrator.API.Exceptions;
 using Orchestrator.API.Interfaces;
 using Orchestrator.API.Models;
 using Orchestrator.API.Services;
@@ -24,36 +25,91 @@ namespace Orchestrator.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task Register([FromBody] UserPutModel user)
+        public async Task<IActionResult> Register([FromBody] UserPutModel user)
         {
-           await _userService.CreateAccountService(user);
+            try
+            {
+                await _userService.CreateAccountService(user);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("login")]
-        public Task<string> Login([FromBody] UserPutModel user)
+        public async Task<IActionResult> Login([FromBody] UserPutModel user)
         {
-             return _userService.LoginAccountService(user);
+            try
+            {
+                var jwt = await _userService.LoginAccountService(user);
+                return Ok(jwt);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+             
         }
 
         [HttpGet("getAll")]
         [JwtAuthorizationFilter("Admin")]
-        public async Task<IEnumerable<UserGetModel>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var AllUsers = await _userService.GetAllUsersService();
-            return AllUsers;
+            try
+            {
+                var AllUsers = await _userService.GetAllUsersService();
+                return Ok(AllUsers);
+            }
+            
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+           
+        }
+
+        [HttpGet("getUserByEmail")]
+        public async Task<IActionResult> GetUserByEmail(string email)
+        {
+            try
+            {
+                var user = await _userService.GetUserByEmailService(email);
+                return Ok(user);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("getUser")]
-        public async Task<UserGetModel> GetUserById(Guid id)
+        public async Task<IActionResult> GetUserById(Guid id)
         {
-            var User = await _userService.GetUserByIdService(id);
-            return User;
+            try
+            {
+                var user = await _userService.GetUserByIdService(id);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("deleteUser")]
-        public async Task DeleteUser(Guid id)
+        public async Task<IActionResult> DeleteUser(Guid id)
         {
-            await _userService.DeleteUserService(id);
+            try
+            {
+                await _userService.DeleteUserService(id);
+                return Ok();
+            }catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
         }       
     }
 }

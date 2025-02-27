@@ -31,8 +31,12 @@ namespace Product.Service.Services
             {
                 throw new ArgumentNullException();
             }
-
-            await _cartRepository.Delete(id);
+            var cart = await _cartRepository.GetCartByUser(id);
+            if (cart == null)
+            {
+                throw new Exception("Cart not found");
+            }
+            await _cartRepository.Delete(cart.Id);
         }
 
         public async Task CreateCart(Guid userId)

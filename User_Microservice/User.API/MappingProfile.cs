@@ -17,6 +17,8 @@ namespace User.API
             CreateMap<UserModel, UserViewModel>();
             CreateMap<CreateUserViewModel, UserModel>();
             CreateMap<UserModel, CreateUserViewModel>();
+            CreateMap<EditUserViewModel, UserModel>();
+            CreateMap<UserModel, EditUserViewModel>();
             CreateMap<byte[], string>().ConvertUsing(src => Convert.ToBase64String(src));
         }
     }

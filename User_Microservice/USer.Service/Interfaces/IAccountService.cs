@@ -8,11 +8,13 @@ namespace User.API.Interfaces
 
         public Task CreateAccount(UserModel user);
 
-        public UserModel Authorize(UserModel user);      
+        public Task<UserModel> Authorize(UserModel user);      
 
         public Task<UserModel> GetAccount(Guid id);
 
         public Task EditAccount(UserModel user);
+
+        public Task<UserModel> GetUserByEmail(string email);
 
         public Task<IEnumerable<UserModel>> GetAllAccounts();
     }

@@ -22,9 +22,9 @@ namespace User.Data.Repositories
             Collection = context.Users;
         }
 
-        public UserEntity GetByEmail(string email)
+        public async Task<UserEntity> GetByEmail(string email)
         {
-            return Collection.FirstOrDefault(entity => entity.Email == email);
+            return await Collection.FirstOrDefaultAsync(entity => entity.Email == email);
         }
     }
 }

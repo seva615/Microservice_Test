@@ -8,21 +8,25 @@ namespace Orchestrator.API.Services
     {
 
         private readonly IUserClient _userClient;
-
-        public UserService(IUserClient userClient)
+        private readonly ICartClient _cartClient;
+        
+        public UserService(IUserClient userClient, ICartClient cartClient)
         {
             _userClient = userClient;
+            _cartClient = cartClient;
         }
 
 
         public async Task CreateAccountService(UserPutModel user)
         {
             await _userClient.Register(user);
+            var newUser = await _userClient.GetUserByEmail(user.Email);
+            await _cartClient.AddCart(newUser.Id);
         }
 
-        public Task<string> LoginAccountService(UserPutModel user)
+        public async Task<JwtModel> LoginAccountService(UserPutModel user)
         {
-            return _userClient.Login(user);
+            return await _userClient.Login(user);
         }
 
         public async Task<IEnumerable<UserGetModel>> GetAllUsersService()
@@ -31,6 +35,8 @@ namespace Orchestrator.API.Services
             return Users;
         }
              
+        
+
         public async Task<UserGetModel> GetUserByIdService(Guid id)
         {
             var User = await _userClient.GetUser(id);
@@ -40,6 +46,13 @@ namespace Orchestrator.API.Services
         public async Task DeleteUserService(Guid id)
         {
             await _userClient.DeleteUser(id);
+            await _cartClient.DeleteCart(id);
+        }
+
+        public async Task<UserGetModel> GetUserByEmailService(string email)
+        {
+            var user = await _userClient.GetUserByEmail(email);
+            return user;
         }
     }
 }

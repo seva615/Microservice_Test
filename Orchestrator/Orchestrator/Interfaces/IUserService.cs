@@ -7,9 +7,11 @@ namespace Orchestrator.API.Interfaces
     {
         public Task CreateAccountService(UserPutModel user);
 
-        public Task<string> LoginAccountService(UserPutModel user);
+        public Task<JwtModel> LoginAccountService(UserPutModel user);
 
         public Task<IEnumerable<UserGetModel>> GetAllUsersService();
+
+        public Task<UserGetModel> GetUserByEmailService(string email);
 
         public Task<UserGetModel> GetUserByIdService(Guid id);
 
