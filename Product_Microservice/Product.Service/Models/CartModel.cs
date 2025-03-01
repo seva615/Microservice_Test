@@ -1,4 +1,5 @@
 ﻿using Product.Data.Entities;
+using Product.Data.Migrations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +16,11 @@ namespace Product.Service.Models
 
         public int TotalPrice { get; set; }
 
-        public ICollection<ProductModel> Products { get; set; }
+        public ICollection<CartRecordModel> CartRecords { get; set; }
 
         public CartModel()
         {
-            Products = new List<ProductModel>();
+            CartRecords = new List<CartRecordModel>();
         }
     }
 }

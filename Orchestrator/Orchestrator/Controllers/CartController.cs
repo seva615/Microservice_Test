@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Orchestrator.API.Interfaces;
 using Orchestrator.API.Models;
+using Orchestrator.API.Services;
 
 namespace Orchestrator.API.Controllers
 {
@@ -16,35 +17,97 @@ namespace Orchestrator.API.Controllers
         }
 
         [HttpGet("getAllcarts")]
-        public async Task<IEnumerable<CartGetModel>> GetAllCarts()
+        public async Task<IActionResult> GetAllCarts()
         {
-            var carts = await _cartService.GetAllCarts();
-            return carts;
+            try
+            {
+                var carts = await _cartService.GetAllCarts();
+                return Ok(carts);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
-        [HttpGet("getCart")]
-        public async Task<CartGetModel> GetCart(Guid cartId)
+        [HttpPatch("clearCart")]
+        [JwtAuthorizationFilter()]
+        public async Task<IActionResult> ClearCart()
         {
-            var cart = await _cartService.GetCart(cartId);
-            return cart;
+            var httpContext = HttpContext;
+            string jwt = httpContext.Request.Headers["Authorization"].FirstOrDefault();
+            try
+            {
+                await _cartService.ClearCart(jwt);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+
+        [HttpGet("getCart")]
+        [JwtAuthorizationFilter()]
+        public async Task<IActionResult> GetCart()
+        {
+            var httpContext = HttpContext;
+            string jwt = httpContext.Request.Headers["Authorization"].FirstOrDefault();
+            try
+            {
+                var cart = await _cartService.GetCart(jwt);
+                return Ok(cart);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         [HttpPost("createCart")]
-        public async Task CreateCart(Guid userId)
+        public async Task<IActionResult> CreateCart(Guid userId)
         {
-            await _cartService.CreateCart(userId);
+            try
+            {
+                await _cartService.CreateCart(userId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         [HttpGet("addProductToCart")]
-        public async Task AddProductToCart(Guid cartId, Guid productId)
+        [JwtAuthorizationFilter()]
+        public async Task<IActionResult> AddProductToCart(Guid productId, int amount)
         {
-            await _cartService.AddToCart(cartId, productId);
+            var httpContext = HttpContext;
+            string jwt = httpContext.Request.Headers["Authorization"].FirstOrDefault();
+            try
+            {
+                await _cartService.AddToCart(productId, jwt, amount);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         [HttpDelete("deleteCart")]
-        public async Task DeleteCart(Guid cartId)
+        public async Task<IActionResult> DeleteCart(Guid cartId)
         {
-            await _cartService.DeleteCart(cartId);
+            try
+            {
+                await _cartService.DeleteCart(cartId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
     }
 }

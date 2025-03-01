@@ -23,6 +23,11 @@ namespace Product.Api
             CreateMap<CartModel, CartEntity>();
             CreateMap<CartViewModel, CartModel>();
             CreateMap<CartModel, CartViewModel>();
+            CreateMap<CartRecordEntity, CartRecordModel>();
+            CreateMap<CartRecordModel, CartRecordEntity>();
+            CreateMap<CartRecordViewModel, CartRecordModel>();
+            CreateMap<CartRecordModel, CartRecordViewModel>();
+
             CreateMap<byte[], string>().ConvertUsing(src => Convert.ToBase64String(src));
         }
     }

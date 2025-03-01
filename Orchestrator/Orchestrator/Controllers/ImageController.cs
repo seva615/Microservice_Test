@@ -16,22 +16,45 @@ namespace Orchestrator.API.Controllers
         }
 
         [HttpGet("GeatAllImages")]
-        public async Task<IEnumerable<ImageGetModel>> GetAllImages()
+        public async Task<IActionResult> GetAllImages()
         {
-            var images = await _imageService.GetAllImagess();
-            return images;
+            try
+            {
+                var images = await _imageService.GetAllImagess();
+                return Ok(images);
+            }
+            catch (Exception ex)
+            {
+               return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("AddImage")]
-        public async Task AddImage(IFormFile image, Guid productId)
+        public async Task<IActionResult> AddImage(IFormFile image, Guid productId)
         {
-            await _imageService.AddProductImage(image, productId);
+            try
+            {
+                await _imageService.AddProductImage(image, productId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("DeleteImage")]
-        public async Task DeleteImage(Guid id)
+        public async Task<IActionResult> DeleteImage(Guid id)
         {
-            await _imageService.DeleteImage(id);
+            try
+            {
+                await _imageService.DeleteImage(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
     }

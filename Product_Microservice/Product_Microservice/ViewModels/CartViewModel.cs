@@ -10,6 +10,6 @@ namespace Product.Api.ViewModels
 
         public int TotalPrice { get; set; }
 
-        public ICollection<ProductViewModel> Products { get; set; }
+        public ICollection<CartRecordViewModel> CartRecords { get; set; }
     }
 }

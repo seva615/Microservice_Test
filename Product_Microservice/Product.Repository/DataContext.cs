@@ -18,10 +18,14 @@ namespace Product.Data
 
         public DbSet<CartEntity> Carts { get; set; }
 
+        public DbSet<CartRecordEntity> CartRecords { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ProductEntity>().HasMany(e => e.ProductImages).WithOne(e => e.Product).OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<CartEntity>().HasMany(e => e.Products);
+            modelBuilder.Entity<CartRecordEntity>().HasOne(e => e.Product).WithMany(e => e.CartRecords);
+            modelBuilder.Entity<CartEntity>().HasMany(e => e.CartRecords).WithOne(e => e.Cart).OnDelete(DeleteBehavior.Cascade);
+            
         }
     }
 }

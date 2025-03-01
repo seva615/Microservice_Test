@@ -14,13 +14,15 @@ namespace Product.Service.Interfaces
 
         public Task CreateCart(Guid userId);
 
+        public Task ClearCart(Guid userId);
+
         public Task<CartModel> GetCart(Guid id);
 
         public Task EditCart(CartModel cart);
 
         public Task<IEnumerable<CartModel>> GetAllCarts();
 
-        public Task AddProductToCart(Guid productId, Guid userId);
+        public Task AddProductToCart(Guid productId, Guid userId, int amount);
         
     }
 }

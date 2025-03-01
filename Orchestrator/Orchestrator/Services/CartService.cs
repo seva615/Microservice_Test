@@ -1,4 +1,5 @@
-﻿using Orchestrator.API.Interfaces;
+﻿using Microsoft.AspNetCore.Http;
+using Orchestrator.API.Interfaces;
 using Orchestrator.API.Models;
 
 namespace Orchestrator.API.Services
@@ -14,9 +15,14 @@ namespace Orchestrator.API.Services
             _userClient = userClient;
         }
 
-        public async Task AddToCart(Guid userId, Guid productId)
+        public async Task AddToCart(Guid productId, string jwt, int amount)
         {
-            await _cartClient.AddToCart(userId, productId);
+            var user = await _userClient.GetUserByJwt(jwt);
+            if (user == null)
+            {
+                throw new Exception();
+            }
+            await _cartClient.AddToCart(user.Id, productId, amount);
         }
 
         public async Task CreateCart(Guid userId)
@@ -40,9 +46,24 @@ namespace Orchestrator.API.Services
             return carts;
         }
 
-        public async Task<CartGetModel> GetCart(Guid cartId)
+        public async Task ClearCart(string jwt)
         {
-            var cart = await _cartClient.GetCart(cartId);
+            var user = await _userClient.GetUserByJwt(jwt);
+            if (user == null)
+            {
+                throw new Exception();
+            }
+            await _cartClient.ClearCart(user.Id);
+        }
+
+        public async Task<CartGetModel> GetCart(string jwt)
+        {
+            var user = await _userClient.GetUserByJwt(jwt);
+            if (user == null)
+            {
+                throw new Exception();
+            }
+            var cart = await _cartClient.GetCart(user.Id);
             return cart;
         }
     }

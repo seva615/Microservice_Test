@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Product.Service.Options;
 using Microsoft.Extensions.Options;
+using Product.Service.Exceptions;
 
 namespace Product.Service.Services
 {
@@ -48,7 +49,7 @@ namespace Product.Service.Services
 
             if (product == null)
             {
-                return;
+                throw new NotFoundException("Product not found");
             }
 
             ImageEntity imageEntity = ConvertToImageEntity(image);
@@ -58,6 +59,7 @@ namespace Product.Service.Services
             {
                 product.ProductImages.Add(imageEntity);
             }
+
             await _productRepository.Edit(product);
         }
 

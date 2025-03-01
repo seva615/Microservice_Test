@@ -14,7 +14,7 @@ namespace Product.Data.Repositories
         {
             _context = context;
             CollectionWithIncludes = context.Carts
-                .Include(e => e.Products).ThenInclude(e => e.ProductImages);
+                .Include(e => e.CartRecords).ThenInclude(e => e.Product).ThenInclude(e => e.ProductImages);
         }
 
         public async Task<CartEntity?> GetCartByUser(Guid userId)

@@ -8,6 +8,6 @@
 
         public int TotalPrice { get; set; }
 
-        public ICollection<ProductGetModel> Products { get; set; }
+        public ICollection<CartRecordGetModel> CartRecords { get; set; }
     }
 }

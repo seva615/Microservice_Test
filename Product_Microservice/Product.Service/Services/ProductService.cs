@@ -3,6 +3,7 @@ using Product.Data;
 using Product.Data.Entities;
 using Product.Data.Interfaces;
 using Product.Data.Repositories;
+using Product.Service.Exceptions;
 using Product.Service.Interfaces;
 using Product.Service.Models;
 
@@ -34,6 +35,10 @@ namespace Product.Service.Services
         {         
 
             var productEntity = await _productRepository.GetById(id);
+            if (productEntity == null)
+            {
+                throw new NotFoundException("Product not found");
+            }
 
             if (productEntity.Status != ProductStatus.Stasuses.Ok)
             {
@@ -46,6 +51,10 @@ namespace Product.Service.Services
 
         public async Task CreateProduct(ProductModel product)
         {
+            if (product == null)
+            {
+                throw new ArgumentNullException();
+            }
             product.Status = ProductStatus.Stasuses.Ok;
             var productEntity = _mapper.Map<ProductModel, ProductEntity>(product);
             await _productRepository.Add(productEntity);
@@ -54,6 +63,10 @@ namespace Product.Service.Services
         public async Task<ProductModel> GetProduct(Guid id)
         {
             var productEntity = await _productRepository.GetById(id);
+            if (productEntity == null)
+            {
+                throw new NotFoundException("Product not found");
+            }
             var productModel = _mapper.Map<ProductEntity, ProductModel>(productEntity);
             return productModel;
         }

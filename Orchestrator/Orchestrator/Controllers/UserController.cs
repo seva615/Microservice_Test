@@ -34,7 +34,7 @@ namespace Orchestrator.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex);
             }
         }
 
@@ -54,7 +54,7 @@ namespace Orchestrator.API.Controllers
         }
 
         [HttpGet("getAll")]
-        [JwtAuthorizationFilter("Admin")]
+        [JwtAuthorizationFilter()]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -65,12 +65,13 @@ namespace Orchestrator.API.Controllers
             
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex);
             }
            
         }
 
         [HttpGet("getUserByEmail")]
+        [JwtAuthorizationFilter("Admin")]
         public async Task<IActionResult> GetUserByEmail(string email)
         {
             try
@@ -80,7 +81,7 @@ namespace Orchestrator.API.Controllers
             }
             catch(Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex);
             }
         }
 
@@ -94,11 +95,12 @@ namespace Orchestrator.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex);
             }
         }
 
         [HttpDelete("deleteUser")]
+        [JwtAuthorizationFilter("Admin")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
             try
@@ -107,7 +109,7 @@ namespace Orchestrator.API.Controllers
                 return Ok();
             }catch(Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex);
             }
             
         }       

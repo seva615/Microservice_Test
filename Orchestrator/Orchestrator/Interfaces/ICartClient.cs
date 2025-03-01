@@ -9,13 +9,16 @@ namespace Orchestrator.API.Interfaces
         Task<IEnumerable<CartGetModel>> GetAllCarts();
 
         [Get("/Cart/getCart")]
-        Task<CartGetModel> GetCart(Guid id);
+        Task<CartGetModel> GetCart(Guid userId);
 
         [Post("/Cart/createCart")]
         Task AddCart(Guid userId);
 
         [Get("/Cart/addToCart")]
-        Task AddToCart(Guid userId, Guid productId);
+        Task AddToCart(Guid userId, Guid productId, int amount);
+
+        [Patch("/Cart/clearCart")]
+        Task ClearCart(Guid userId);
 
         [Patch("/Cart/editCart")]
         Task EditCart(CartGetModel cartGetModel);

@@ -22,9 +22,13 @@ namespace Product.Data.Entities
 
         public ICollection<ImageEntity> ProductImages { get; set; }
 
+
+        public IEnumerable<CartRecordEntity> CartRecords { get; set; }
+
         public ProductEntity() 
         {
             ProductImages = new List<ImageEntity>();
+            CartRecords = new List<CartRecordEntity>();
         }
 
 

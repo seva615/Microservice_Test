@@ -20,46 +20,96 @@ namespace Product.Api.Controllers
         }
 
         [HttpGet("getAllCarts")]
-        public async Task<IEnumerable<CartViewModel>> GetAllCarts()
+        public async Task<IActionResult> GetAllCarts()
         {
-            var cartModels = await _cartService.GetAllCarts();
+            IEnumerable<CartModel> cartModels;
+            try
+            {
+                cartModels = await _cartService.GetAllCarts();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
             var cartViewModels = _mapper.Map<IEnumerable<CartViewModel>>(cartModels);
-            return cartViewModels;
+            return Ok(cartViewModels);
         }
 
         [HttpGet("getCart")]
-        public async Task<CartViewModel> GetCart(Guid id)
+        public async Task<IActionResult> GetCart(Guid userId)
         {
             CartModel cartModel;
             try
             {
-                cartModel = await _cartService.GetCart(id);
+                cartModel = await _cartService.GetCart(userId);               
             }
             catch (Exception e)
             {
-                throw new Exception("Cart not found");
+                return BadRequest(e.Message);
             }
             var cartViewModel = _mapper.Map<CartModel, CartViewModel>(cartModel);
-            return cartViewModel;
+            return Ok(cartViewModel);
         }
 
         [HttpGet("addToCart")]
-        public async Task AddToCart(Guid userId,Guid productId)
+        public async Task<IActionResult> AddToCart(Guid userId, Guid productId, int amount)
         {
-            await _cartService.AddProductToCart(productId, userId);
+            try
+            {
+                await _cartService.AddProductToCart(productId, userId, amount);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost("createCart")]
-        public async Task CreateCart(Guid userId)
+        public async Task<IActionResult> CreateCart(Guid userId)
         {
-            await _cartService.CreateCart(userId);
+            if(userId == Guid.Empty)
+            {
+                throw new ArgumentNullException("userId");
+            }
+            try
+            {
+                await _cartService.CreateCart(userId);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPatch("editCart")]
-        public async Task EditCart(CartViewModel cartViewModel)
+        public async Task<IActionResult> EditCart(CartViewModel cartViewModel)
         {
             var cartModel = _mapper.Map<CartViewModel, CartModel>(cartViewModel);
-            await _cartService.EditCart(cartModel);
+            try
+            {
+                await _cartService.EditCart(cartModel);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPatch("clearCart")]
+        public async Task<IActionResult> ClearCart(Guid userId)
+        {
+            try
+            {
+                await _cartService.ClearCart(userId);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpDelete("deleteCart")]

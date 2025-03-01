@@ -22,29 +22,47 @@ namespace Product.Api.Controllers
         }
 
         [HttpGet("getAllImages")]        
-        public async Task<IEnumerable<ImageViewModel>> GetAllImages()
+        public async Task<IActionResult> GetAllImages()
         {
-            var imageModels = await _imageService.GetAllImages();
+            IEnumerable<ImageModel> imageModels;
+            try
+            {
+                imageModels = await _imageService.GetAllImages();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
             var imageViewModels = _mapper.Map<IEnumerable<ImageViewModel>>(imageModels);
-            return imageViewModels;
+            return Ok(imageViewModels);
         }
 
         [HttpPost("addProductImage")] 
-        public async Task AddImage(IFormFile image, Guid id)
-        {     
-            await _imageService.AddImage(image, id);
+        public async Task<IActionResult> AddImage(IFormFile image, Guid id)
+        {
+            try
+            {
+                await _imageService.AddImage(image, id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+            
         }        
 
         [HttpDelete("deleteImage")]  
-        public async Task DeleteImage(Guid id)
+        public async Task<IActionResult> DeleteImage(Guid id)
         {
             try
             {
                 await _imageService.DeleteImage(id);
+                return Ok();
             }
             catch (Exception e)
             {
-                throw new Exception("Image not found");
+                return BadRequest(e);
             }
         }
     }

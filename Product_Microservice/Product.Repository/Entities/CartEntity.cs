@@ -15,11 +15,11 @@ namespace Product.Data.Entities
 
         public int TotalPrice { get; set; }
 
-        public ICollection<ProductEntity> Products { get; set; }
+        public ICollection<CartRecordEntity> CartRecords { get; set; }
 
         public CartEntity()
         {
-            Products = new List<ProductEntity>();
+            CartRecords = new List<CartRecordEntity>();
         }
 
     }

@@ -7,11 +7,13 @@ namespace Orchestrator.API.Interfaces
     {
        public Task<IEnumerable<CartGetModel>> GetAllCarts();
 
-       public Task<CartGetModel> GetCart(Guid cartId);
+       public Task<CartGetModel> GetCart(string jwt);
 
        public Task CreateCart(Guid userId);
 
-       public Task AddToCart(Guid userId, Guid productId);
+       public Task ClearCart(string jwt);
+
+        public Task AddToCart(Guid productId, string jwt, int amount);
 
        //public Task EditCart(CartGetModel cartGetModel);
 

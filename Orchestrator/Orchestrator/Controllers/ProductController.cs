@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Orchestrator.API.Interfaces;
 using Orchestrator.API.Models;
+using Orchestrator.API.Services;
 
 namespace Orchestrator.API.Controllers
 {
@@ -16,40 +17,95 @@ namespace Orchestrator.API.Controllers
         }
 
         [HttpGet("GetAllProducts")]
-        public async Task<IEnumerable<ProductGetModel>> GetAllProducts()
+        public async Task<IActionResult> GetAllProducts()
         {
-            return await _productService.GetAllProducts();
+            try
+            {
+                var products = await _productService.GetAllProducts();
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("GetProduct")]
-        public async Task<ProductGetModel> GetProduct(Guid id)
+        public async Task<IActionResult> GetProduct(Guid id)
         {
-            return await _productService.GetProduct(id);
+            try
+            {
+                var product = await _productService.GetProduct(id);
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+             
         }
 
         [HttpPost("AddProduct")]
-        public async Task AddProduct([FromBody] ProductPutModel productPutModel)
+        [JwtAuthorizationFilter("Admin")]
+        public async Task<IActionResult> AddProduct([FromBody] ProductPutModel productPutModel)
         {
-            await _productService.AddProduct(productPutModel);
+            try
+            {
+                await _productService.AddProduct(productPutModel);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPatch("EditProduct")]
-        public async Task EditProduct(ProductGetModel productGetModel)
+        [JwtAuthorizationFilter("Admin")]
+        public async Task<IActionResult> EditProduct(ProductGetModel productGetModel)
         {
-            await _productService.EditProduct(productGetModel);
+            try
+            {
+                await _productService.EditProduct(productGetModel);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
+
         [HttpPatch("ChangeProductStatus")]
-        public async Task ChangeProductStatus(Guid productId)
+        [JwtAuthorizationFilter("Admin")]
+        public async Task<IActionResult> ChangeProductStatus(Guid productId)
         {
-            await _productService.ChangeProductStatus(productId);
+            try
+            {
+                await _productService.ChangeProductStatus(productId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("DeletProduct")]
-        public async Task DeleteProduct(Guid productId)
+        [JwtAuthorizationFilter("Admin")]
+        public async Task<IActionResult> DeleteProduct(Guid productId)
         {
-            await _productService.DeleteProduct(productId);
+            try
+            {
+                await _productService.DeleteProduct(productId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            }
         }
-    }
 }
 
