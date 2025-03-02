@@ -14,10 +14,14 @@ builder.Services.AddRefitClient<IImageClient>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri(builder.Configuration["ServicesConnectionStrings:ProductService"]));
 builder.Services.AddRefitClient<ICartClient>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri(builder.Configuration["ServicesConnectionStrings:ProductService"]));
+builder.Services.AddRefitClient<ICommentClient>()
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri(builder.Configuration["ServicesConnectionStrings:CommentService"]));
+
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<ICommentService,  CommentService>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddMvc();
 builder.Services.AddControllers();
