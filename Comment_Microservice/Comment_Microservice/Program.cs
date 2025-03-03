@@ -5,12 +5,12 @@ using Comment.Data.Repositories;
 using Commet.Service.Interfaces;
 using Commet.Service.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
-
 var builder = WebApplication.CreateBuilder(args);
-var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 
+var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(connection));
 
 var mapperConfig = new MapperConfiguration(mc =>
@@ -19,9 +19,14 @@ var mapperConfig = new MapperConfiguration(mc =>
 });
 
 IMapper mapper = mapperConfig.CreateMapper();
+
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddScoped<ICommentService, CommentService>();
-builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>(provider =>
+{
+    var context = provider.GetService<DataContext>()!;
+    return new CommentRepository(context, connection);
+});
 builder.Services.AddSingleton(mapper);
 builder.Services.AddMvc();
 builder.Services.AddControllers();
